@@ -129,24 +129,56 @@ node_identifier = str(uuid4()).replace('-', '')
 blockchain = Blockchain()
 
 
+# @app.route('/mine', methods=['GET'])
+# def mine():
+#     # We run the proof of work algorithm to get the next proof...
+#     proof = blockchain.proof_of_work(blockchain.last_block.proof)
+
+#     # We must receive a reward for finding the proof.
+#     # TODO:
+#     # The sender is "0" to signify that this node has mine a new coin
+#     # The recipient is the current node, it did the mining!
+#     # The amount is 1 coin as a reward for mining the next block
+#     # new_transaction(self, sender, recipient, amount)
+#     blockchain.new_transaction(0, node_identifier, 1)
+
+#     # Forge the new Block by adding it to the chain
+#     # new_block(self, proof, previous_hash=None)
+#     block = blockchain.new_block(proof, blockchain.hash(blockchain.last_block))
+
+#     # Send a response with the new block
+#     response = {
+#         'message': "New Block Forged",
+#         'index': block['index'],
+#         'transactions': block['transactions'],
+#         'proof': block['proof'],
+#         'previous_hash': block['previous_hash'],
+#     }
+#     return jsonify(response), 200
+
 @app.route('/mine', methods=['GET'])
 def mine():
-    # We run the proof of work algorithm to get the next proof...
-    proof = blockchain.proof_of_work(blockchain.last_block.proof)
+    
 
-    # We must receive a reward for finding the proof.
-    # TODO:
-    # The sender is "0" to signify that this node has mine a new coin
-    # The recipient is the current node, it did the mining!
-    # The amount is 1 coin as a reward for mining the next block
-    # new_transaction(self, sender, recipient, amount)
-    blockchain.new_transaction(0, node_identifier, 1)
+    values = request.get_json()
 
-    # Forge the new Block by adding it to the chain
-    # new_block(self, proof, previous_hash=None)
-    block = blockchain.new_block(proof, blockchain.hash(blockchain.last_block))
+    required = ['proof']
+    if not all(k in values for k in required):
+        return 'Missing Values', 400
 
-    # Send a response with the new block
+    if not blockchain.valid_proof(blockchain.last_block['previous_hash']. value['proof']):
+        print("ERROR")
+        response = {
+            'message': "Proof is invalid. May have already been submitted"
+        }
+        return jsonify(response), 200
+
+
+    blochcain.new_transaction(0, node_identifier, 1)
+
+    block = blockchain.new_block(values['proof'], blockchain.hash(blockchain.last_block))
+
+
     response = {
         'message': "New Block Forged",
         'index': block['index'],
@@ -184,11 +216,12 @@ def full_chain():
     }
     return jsonify(response), 200
 
-@app.route('/last_proof', methods=['GET'])
-def last_proof():
+@app.route('/last_block_string', methods=['GET'])
+def last_block_string():
     response = {
-    'last_block': blockchain.last_block
+    'last_block_string': blockchain.last_block
     }
+    return jsonify(response), 200
 
 
 # Run the program on port 5000
