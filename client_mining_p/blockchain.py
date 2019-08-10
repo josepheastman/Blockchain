@@ -174,7 +174,7 @@ def mine():
         return jsonify(response), 200
 
 
-    blochcain.new_transaction(0, node_identifier, 1)
+    blockchain.new_transaction(0, node_identifier, 1)
 
     block = blockchain.new_block(values['proof'], blockchain.hash(blockchain.last_block))
 
